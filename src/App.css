@@ -1,0 +1,19 @@
+/* CUSTOM FONTS */
+@font-face{
+    font-family: MNT;
+    src: url("/fonts/MNT/Montserrat-Regular.ttf");
+    weight: 500;
+}
+@font-face{
+    font-family: MNT;
+    src: url("/fonts/MNT/Montserrat-Light.ttf");
+    weight: 400;
+}
+@font-face{
+    font-family: MNT;
+    src: url("/fonts/MNT/Montserrat-Medium.ttf");
+    weight: 600;
+}
+body{
+    background-color:  #0052d0 !important;
+}
