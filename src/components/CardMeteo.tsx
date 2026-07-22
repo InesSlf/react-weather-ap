@@ -4,6 +4,8 @@ import CloudIcon from "@mui/icons-material/Cloud";
 import Button from "@mui/material/Button";
 import { useEffect, useState } from "react";
 import axios from "axios";
+import moment from "moment";
+import { useTranslation } from "react-i18next";
 
 let cancelAxios: (() => void) | null = null;
 type Weather = {
@@ -15,6 +17,9 @@ type Weather = {
 };
 
 export default function CardMeteo() {
+  const { t, i18n } = useTranslation();
+  const [locale, setLocale] = useState("fr");
+  const dateAndTime = moment().format("MMMM Do YYYY, h:mm:ss a");
   const [temp, setTemp] = useState<Weather>({
     number: null,
     desc: "",
@@ -22,6 +27,22 @@ export default function CardMeteo() {
     max: null,
     icon: null,
   });
+
+  //handlers
+
+  function handleLangClick() {
+    if (locale == "fr") {
+      setLocale("en");
+      i18n.changeLanguage("en");
+    } else {
+      setLocale("fr");
+      i18n.changeLanguage("fr");
+    }
+  }
+
+  useEffect(() => {
+    i18n.changeLanguage("en");
+  }, []);
 
   useEffect(() => {
     axios
@@ -94,10 +115,11 @@ export default function CardMeteo() {
                 }}
               >
                 <Typography variant="h2" style={{ marginLeft: "20px" }}>
-                  Alger
+                  {/* Alger */}
+                  {t("Alger")}
                 </Typography>
                 <Typography variant="h5" style={{ marginLeft: "20px" }}>
-                  Dimanche 16-06-2026
+                  {dateAndTime}
                 </Typography>
               </div>
               {/* === CITY & Time === */}
@@ -119,7 +141,7 @@ export default function CardMeteo() {
                     <img src={temp.icon ?? ""} />
                   </div>
                   <Typography variant="h6" style={{ paddingLeft: "20px" }}>
-                    {temp.desc}
+                    {t(temp.desc)}
                   </Typography>
                   {/* MIN & MAX */}
                   <div
@@ -132,9 +154,9 @@ export default function CardMeteo() {
                       marginLeft: "20px",
                     }}
                   >
-                    <h5>Minimale: {temp.min}</h5>
+                    <h5>{t("min")}: {temp.min}</h5>
                     <h5 style={{ margin: "0px 5px" }}>|</h5>
-                    <h5>Maximale: {temp.max}</h5>
+                    <h5>{t("max")}: {temp.max}</h5>
                   </div>
                   {/* === MIN & MAX === */}
                 </div>
@@ -154,8 +176,12 @@ export default function CardMeteo() {
               marginTop: "20px",
             }}
           >
-            <Button variant="text" style={{ color: "white" }}>
-              Anglais
+            <Button
+              variant="text"
+              style={{ color: "white" }}
+              onClick={handleLangClick}
+            >
+              {locale == "en" ? "Français" : "Englais"}
             </Button>
           </div>
           {/* === TRANSLATION CONTAINER ===*/}
