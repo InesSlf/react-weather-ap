@@ -3,31 +3,44 @@ import Typography from "@mui/material/Typography";
 import CloudIcon from "@mui/icons-material/Cloud";
 import Button from "@mui/material/Button";
 import { useEffect, useState } from "react";
-import axios from "axios";
+//import axios from "axios";
 import moment from "moment";
 import { useTranslation } from "react-i18next";
+import { useSelector, useDispatch } from "react-redux";
+import type { RootState, AppDispatch } from "../store";
+//import { changeResult } from '../weatherApiSlice'
+import { fetchWeather } from "../weatherApiSlice";
+import CircularProgress from "@mui/material/CircularProgress";
 
-let cancelAxios: (() => void) | null = null;
-type Weather = {
+//let cancelAxios: (() => void) | null = null;
+/* type Weather = {
   number: number | null;
   desc: string;
   min: number | null;
   max: number | null;
   icon: string | null;
 };
-
+ */
 export default function CardMeteo() {
   const { t, i18n } = useTranslation();
   const [locale, setLocale] = useState("fr");
   const dateAndTime = moment().format("MMMM Do YYYY, h:mm:ss a");
-  const [temp, setTemp] = useState<Weather>({
+/* const [temp, setTemp] = useState<Weather>({
     number: null,
     desc: "",
     min: null,
     max: null,
     icon: null,
+  }); */
+  const dispatch = useDispatch<AppDispatch>();
+  const isLoading = useSelector((state: RootState) => {
+    return state.weather.isLoading;
   });
 
+  const temp = useSelector((state: RootState) => {
+    return state.weather.weather;
+  });
+  
   //handlers
 
   function handleLangClick() {
@@ -41,44 +54,16 @@ export default function CardMeteo() {
   }
 
   useEffect(() => {
+    //dispatch(changeResult())
+    console.log("Dispatching fetch weather from the component");
+    dispatch(fetchWeather());
     i18n.changeLanguage("en");
   }, []);
 
-  useEffect(() => {
-    axios
-      .get(
-        "https://api.openweathermap.org/data/2.5/weather?lat=36.7525&lon=3.0420&appid=23315ca86053bbde8d1b31e88845bb7e",
-        {
-          cancelToken: new axios.CancelToken((c) => {
-            cancelAxios = c;
-          }),
-        },
-      )
-      .then((response) => {
-        const responseTemp = Math.round(response.data.main.temp - 273);
-        const min = Math.round(response.data.main.temp_min - 273);
-        const max = Math.round(response.data.main.temp_max - 273);
-        const desc = response.data.weather[0].description;
-        const icon = response.data.weather[0].icon;
-        //console.log(min, max, desc)
-        //console.log(response.data)
-        setTemp({
-          number: responseTemp,
-          min: min,
-          max: max,
-          desc: desc,
-          icon: `https://openweathermap.org/payload/api/media/file/${icon}.png`,
-        });
-      })
-      .catch((error) => {
-        console.error(error);
-      });
-    return () => {
-      // L'opérateur "?." appelle la fonction uniquement si elle existe
-      cancelAxios?.();
-    };
+  /*   useEffect(() => {
+    
   }, []);
-
+ */
   return (
     <>
       <Container maxWidth="sm">
@@ -135,13 +120,22 @@ export default function CardMeteo() {
                       alignItems: "center",
                     }}
                   >
+                    {isLoading ? (
+                      <CircularProgress
+                        aria-label="Loading…"
+                        style={{ color: "white" }}
+                      />
+                    ) : (
+                      ""
+                    )}
+
                     <Typography variant="h1" style={{ paddingLeft: "20px" }}>
-                      {temp.number}
+                      {temp?.number}
                     </Typography>
-                    <img src={temp.icon ?? ""} />
+                    <img src={temp?.icon ?? ""} />
                   </div>
                   <Typography variant="h6" style={{ paddingLeft: "20px" }}>
-                    {t(temp.desc)}
+                    {t(temp?.desc ?? "")}
                   </Typography>
                   {/* MIN & MAX */}
                   <div
@@ -154,9 +148,13 @@ export default function CardMeteo() {
                       marginLeft: "20px",
                     }}
                   >
-                    <h5>{t("min")}: {temp.min}</h5>
+                    <h5>
+                      {t("min")}: {temp?.min}
+                    </h5>
                     <h5 style={{ margin: "0px 5px" }}>|</h5>
-                    <h5>{t("max")}: {temp.max}</h5>
+                    <h5>
+                      {t("max")}: {temp?.max}
+                    </h5>
                   </div>
                   {/* === MIN & MAX === */}
                 </div>
